@@ -233,6 +233,8 @@ for(const kind of ['desktop','mobile'])$(kind+'Library').onclick=()=>{libraryKin
 $('closeLibrary').onclick=()=>$('libraryDialog').close();
 renderBanners();
 
+$('createBanner').onclick=()=>$('newBanner').click();$('backBanners').onclick=()=>{creatorMode='list';showPage('creator')};
+showPage('creator');
 function fitPreview(){const mobile=$('stage').classList.contains('mobile');const width=mobile?375:1170,height=mobile?220:400;const available=Math.max(1,$('stage').clientWidth-56);const scale=Math.min(1,available/width);$('preview').style.width=width+'px';$('preview').style.height=height+'px';$('preview').style.transform='scale('+scale+')';$('stage').style.height=(height*scale+56)+'px'}
 new ResizeObserver(fitPreview).observe($('stage'));
 render();fitPreview();try{const request=indexedDB.open('mighty-luck-banner-studio',1);request.onupgradeneeded=()=>request.result.createObjectStore('drafts');request.onerror=()=>message('Browser saving is unavailable. Draft changes will last only for this visit.');request.onsuccess=()=>{db=request.result;const read=db.transaction('drafts').objectStore('drafts').get('current');read.onsuccess=()=>{if(read.result)try{restore(read.result);message('')}catch{message('Saved draft could not be restored.')}}}}catch{message('Browser saving is unavailable. Use Export draft to keep your work.')}
