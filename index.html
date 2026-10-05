@@ -240,6 +240,7 @@ $('saveBanner').onclick=()=>{const name=$('bannerName').value.trim();if(!name){m
 $('undoBanner').onclick=()=>{if(removedBanner)banners.splice(removedBanner.index,0,removedBanner.banner);removedBanner=null;$('undoBanner').hidden=true;renderBanners()};
 for(const kind of ['desktop','mobile'])$(kind+'Library').onclick=()=>{libraryKind=kind;$('libraryChoices').replaceChildren();$('libraryEmpty').hidden=assets.length>0;for(const asset of assets){const button=node('button',undefined,'libraryChoice'),img=node('img');img.src=asset.data;img.alt='';button.append(img,node('span',asset.name),node('small',asset.folder||'Uncategorized'));button.onclick=()=>{images[libraryKind]=asset;$(libraryKind+'Url').value='';changed();$('libraryDialog').close();message('Image selected from library.')};$('libraryChoices').append(button)}$('libraryDialog').showModal()};
 $('closeLibrary').onclick=()=>$('libraryDialog').close();
+banners.push({id:'generic-banner',name:'Generic banner',form:{title:'50+ Providers. [5000+ Games.] ',description:'Always [something fresh] to play',tag:'You are lucky!',desktopUrl:'https://mightyluck.com/static/images/banners/banner-1/bg.png',mobileUrl:'https://mightyluck.com/static/images/banners/banner-1/bg-mobile.png'},images:{desktop:null,mobile:null},html:originalTemplate});
 renderBanners();
 
 $('createBanner').onclick=()=>$('newBanner').click();$('backBanners').onclick=()=>{creatorMode='list';showPage('creator')};
