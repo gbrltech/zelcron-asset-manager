@@ -28,11 +28,11 @@ h3,.hint,p,.previewNote{color:#737487}.viewTabs{display:flex;gap:8px}.right{gap:
 <h2>Your banner</h2>
 <h3><span class="step">01</span>Background images</h3>
 <label for="desktopFile">Desktop image</label><div class="upload"><input id="desktopFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif"><div id="desktopInfo" class="imageInfo" hidden></div></div>
-<label for="desktopUrl">Or use a hosted desktop URL</label><input id="desktopUrl" type="url" placeholder="https://…/bg.png">
+<label for="desktopUrl">Or use a hosted desktop URL</label><input id="desktopUrl" type="url" value="https://mightyluck.com/static/images/banners/banner-1/bg.png" placeholder="https://…/bg.png">
 <label for="mobileFile">Mobile image <span class="hint">· optional</span></label><div class="upload"><input id="mobileFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif"><div id="mobileInfo" class="imageInfo" hidden></div></div>
-<label for="mobileUrl">Or use a hosted mobile URL</label><input id="mobileUrl" type="url" placeholder="https://…/bg-mobile.png">
+<label for="mobileUrl">Or use a hosted mobile URL</label><input id="mobileUrl" type="url" value="https://mightyluck.com/static/images/banners/banner-1/bg-mobile.png" placeholder="https://…/bg-mobile.png">
 <h3><span class="step">02</span>Banner copy</h3>
-<label for="title">Banner title</label><textarea id="title">50+ Providers. [5000+ Games.]</textarea>
+<label for="title">Banner title</label><textarea id="title">50+ Providers. [5000+ Games.] </textarea>
 <label for="description">Banner content</label><textarea id="description">Always [something fresh] to play</textarea><div class="hint">Put words in [brackets] to generate a highlighted &lt;span&gt;. Other text is safely escaped.</div>
 <label for="tag">Tag text</label><input id="tag" type="text" value="You are lucky!">
 
@@ -55,11 +55,11 @@ const imageData=s=>/^data:image\/(png|jpeg|webp|gif);base64,[A-Za-z0-9+/=]+$/.te
 function source(kind){const url=$(kind+'Url').value.trim();return url?validUrl(url)?url:'':images[kind]?.data||''}
 function snapshot(){const form={};fields.forEach(k=>form[k]=k==='buttons'?$(k).checked:$(k).value);return {version:1,form,images}}
 function message(s){$('status').textContent=s}
-function markup(){const desktop=source('desktop'),mobile=source('mobile')||desktop;const id='1';const tag=$('tag').value.trim(),tagImage='/static/images/banners/banner-tag.svg';return `<div class="banner banner--${id}">
+function markup(){const desktop=source('desktop'),mobile=source('mobile')||desktop;const id='1';const tag=$('tag').value.trim(),tagImage='https://mightyluck.com/static/images/banners/banner-tag.svg';return `<div class="banner banner--${id}">
     <div class="banner__bg">
         <picture>
             <source media="(max-width: 559px)" srcset="${escapeHtml(mobile)}">
-            <img src="${escapeHtml(desktop)}" alt="">
+            <img src="${escapeHtml(desktop)}">
         </picture>
     </div>${tag?`
     <div class="banner__tag">${tagImage&&validPath(tagImage)?`
@@ -83,7 +83,7 @@ for(const kind of ['desktop','mobile']){const info=$(kind+'Info');info.replaceCh
 function changed(){render();clearTimeout(saveTimer);saveTimer=setTimeout(save,400)}
 async function save(){if(!db)return;try{const tx=db.transaction('drafts','readwrite');tx.objectStore('drafts').put(snapshot(),'current');tx.onerror=()=>message('Draft could not be saved. Draft changes will last only for this visit.')}catch{message('Draft could not be saved. Export a draft to keep your work.')}}
 async function upload(kind,file){if(!file)return;if(!['image/png','image/jpeg','image/webp','image/gif'].includes(file.type)){message('Choose a PNG, JPG, WebP or GIF image.');return}if(file.size>8*1024*1024){message('Choose an image smaller than 8 MB.');return}const reader=new FileReader();reader.onerror=()=>message('Could not read this image. Try another file.');reader.onload=()=>{const image=new Image();image.onerror=()=>message('This file is not a readable image.');image.onload=()=>{images[kind]={data:reader.result,name:file.name};$(kind+'Url').value='';message(kind==='desktop'?'Desktop image ready.':'Mobile image ready.');changed()};image.src=reader.result};reader.readAsDataURL(file)}
-function restore(draft){if(!draft||draft.version!==1||!draft.form||!draft.images)throw Error('Invalid draft');const next={desktop:null,mobile:null};for(const k of ['desktop','mobile']){const image=draft.images[k];if(image){if(typeof image.data!=='string'||image.data.length>12*1024*1024||!imageData(image.data)||typeof image.name!=='string')throw Error('Invalid image');next[k]={data:image.data,name:image.name}}}for(const k of fields){if(k==='buttons'){if(typeof draft.form[k]!=='boolean')throw Error('Invalid setting')}else if(typeof draft.form[k]!=='string'||draft.form[k].length>20000)throw Error('Invalid text')}fields.forEach(k=>{if(k==='buttons')$(k).checked=draft.form[k];else $(k).value=draft.form[k]});images=next;render()}
+function restore(draft){if(!draft||draft.version!==1||!draft.form||!draft.images)throw Error('Invalid draft');const next={desktop:null,mobile:null};for(const k of ['desktop','mobile']){const image=draft.images[k];if(image){if(typeof image.data!=='string'||image.data.length>12*1024*1024||!imageData(image.data)||typeof image.name!=='string')throw Error('Invalid image');next[k]={data:image.data,name:image.name}}}for(const k of fields){if(k==='buttons'){if(typeof draft.form[k]!=='boolean')throw Error('Invalid setting')}else if(typeof draft.form[k]!=='string'||draft.form[k].length>20000)throw Error('Invalid text')}fields.forEach(k=>{if(k==='buttons')$(k).checked=draft.form[k];else $(k).value=draft.form[k]});images=next;for(const kind of ['desktop','mobile'])if(!$(kind+'Url').value.trim()&&!images[kind])$(kind+'Url').value='https://mightyluck.com/static/images/banners/banner-1/bg'+(kind==='mobile'?'-mobile':'')+'.png';render()}
 fields.forEach(k=>$(k).addEventListener('input',()=>{message('');changed()}));for(const k of ['desktop','mobile'])$(k+'File').onchange=e=>upload(k,e.target.files[0]);
 for(const k of ['desktop','mobile'])$(k).onclick=()=>{$('stage').classList.toggle('mobile',k==='mobile');for(const mode of ['desktop','mobile']){$(mode).classList.toggle('active',mode===k);$(mode).setAttribute('aria-pressed',String(mode===k))}};
 $('copy').onclick=async()=>{try{await navigator.clipboard.writeText(markup());message('Banner HTML copied.')}catch{$('output').focus();$('output').select();message('Select Copy from your browser to copy the selected HTML.')}};
